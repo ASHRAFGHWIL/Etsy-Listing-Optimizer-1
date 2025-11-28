@@ -33,8 +33,12 @@ export async function generateListing(productDescription: string, priorityKeywor
       - Avoid repetition of words.
       - Critically, place the most important, highest-volume keywords at the very beginning of the title. This is vital for Etsy's search algorithm.${priorityKeyword ? ' It MUST start with the priority keyword.' : ' If no priority keyword is provided, the title MUST start with the top keyword from your generated list.'}
     - Description: Create a compelling, professional Etsy description (approx 800-1000 characters).
-      - Structure: Split the text into readable sections (e.g. Introduction, Features, Benefits). Use bullet points or short paragraphs to break up text.
-      - Strategy: Highlight the key Benefits and Features. Naturally integrate the top search queries (keywords) provided.
+      - Structure & Content: Organize the description using the "What, Why, How" framework:
+        1. **What**: Clearly state what the item is and who it is for.
+        2. **Why**: Explain the benefits and emotional value (why the customer needs it).
+        3. **How**: Describe technical features, materials, dimensions, and care instructions.
+      - Readability: Use short paragraphs, bullet points for lists, and clear spacing. Avoid large walls of text.
+      - Strategy: Naturally integrate the top search queries (keywords) provided.
       - Call to Action: End with a clear, persuasive Call to Action (CTA) encouraging the purchase.
     - Keywords: Exactly 13 keyword objects. Each object must contain:
       - "keyword": A 2 or 3 word string, max 20 characters. Optimized for high search volume on Etsy and Google for US and European markets.
