@@ -22,6 +22,11 @@ const en = {
       "description": "Enter one high-impact keyword to place at the beginning of your title. This is often the most searched term for your product.",
       "placeholder": "e.g., Personalized Gift"
     },
+    "seasonalKeywords": {
+      "button": "Suggest Seasonal Keywords",
+      "loading": "Finding trends...",
+      "description": "Get 5 trending, seasonal keywords based on your description."
+    },
     "imageTitle": "2. Upload Product Images (Optional)",
     "imageDescription": "Upload up to 20 images to generate SEO-optimized alt-text. This helps with accessibility and search engine visibility.",
     "uploadButton": "Click to upload",

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ListingData, GroundingChunk, Keyword } from './types';
-import { generateListing, regenerateKeyword, generateAlternativeTitles, generateAlternativeCategories, generateAltText } from './services/geminiService';
+import { generateListing, regenerateKeyword, generateAlternativeTitles, generateAlternativeCategories, generateAltText, generateSeasonalKeywords } from './services/geminiService';
 import { SunIcon, MoonIcon, SparklesIcon, PencilIcon, ImageIcon, TrashIcon, LinkIcon, InfoIcon, TrendingUpIcon, TagIcon, CheckIcon } from './components/icons';
 import { CopyButton } from './components/CopyButton';
 import { KeywordRefineModal } from './components/KeywordRefineModal';
@@ -86,6 +86,9 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [editingKeyword, setEditingKeyword] = useState<{ index: number; value: Keyword } | null>(null);
   const [keywordFilter, setKeywordFilter] = useState<KeywordVolume>('All');
+  
+  const [seasonalKeywords, setSeasonalKeywords] = useState<string[]>([]);
+  const [isGeneratingSeasonal, setIsGeneratingSeasonal] = useState(false);
 
   useEffect(() => {
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -214,6 +217,25 @@ const App: React.FC = () => {
   const removeImage = (idToRemove: number) => {
     setImages(prevImages => prevImages.filter(image => image.id !== idToRemove));
     setAltTexts(prevAltTexts => prevAltTexts.filter(alt => alt.id !== idToRemove));
+  };
+
+  const handleGenerateSeasonalKeywords = async () => {
+    if (!productDescription.trim()) {
+      setError(t('form.error.empty'));
+      return;
+    }
+    
+    setIsGeneratingSeasonal(true);
+    setSeasonalKeywords([]);
+    try {
+      const keywords = await generateSeasonalKeywords(productDescription);
+      setSeasonalKeywords(keywords);
+    } catch (e) {
+      console.error(e);
+      // Fail silently for this optional feature
+    } finally {
+      setIsGeneratingSeasonal(false);
+    }
   };
 
   const handleGenerate = async () => {
@@ -643,6 +665,34 @@ const App: React.FC = () => {
                     className="w-full md:w-1/2 p-3 bg-slate-100 dark:bg-gray-700 rounded-lg border-2 border-transparent focus:ring-2 focus:ring-primary focus:border-primary transition duration-200"
                     aria-label={t('form.priorityKeyword.title')}
                 />
+                
+                <div className="mt-4">
+                  <div className="flex items-center flex-wrap gap-2">
+                    <button
+                      onClick={handleGenerateSeasonalKeywords}
+                      disabled={isGeneratingSeasonal || !productDescription.trim()}
+                      className="text-sm font-medium text-secondary-dark dark:text-secondary-light flex items-center hover:underline disabled:opacity-50 disabled:no-underline"
+                    >
+                      <SparklesIcon className={`w-4 h-4 mr-1 ${isGeneratingSeasonal ? 'animate-spin' : ''}`} />
+                      {isGeneratingSeasonal ? t('form.seasonalKeywords.loading') : t('form.seasonalKeywords.button')}
+                    </button>
+                    <span className="text-xs text-slate-400">({t('form.seasonalKeywords.description')})</span>
+                  </div>
+                  
+                  {seasonalKeywords.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3 animate-fadeIn">
+                       {seasonalKeywords.map((kw, idx) => (
+                         <button
+                           key={idx}
+                           onClick={() => setPriorityKeyword(kw)}
+                           className="bg-secondary/10 hover:bg-secondary/20 text-secondary-dark dark:text-secondary-light border border-secondary/30 rounded-full px-3 py-1 text-sm transition-colors"
+                         >
+                           {kw}
+                         </button>
+                       ))}
+                    </div>
+                  )}
+                </div>
             </div>
 
             <div className="mt-8 border-t border-slate-200 dark:border-gray-700 pt-8">

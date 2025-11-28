@@ -343,3 +343,47 @@ export async function regenerateKeyword(
     throw new Error("Failed to regenerate keyword.");
   }
 }
+
+export async function generateSeasonalKeywords(productDescription: string): Promise<string[]> {
+  const currentDate = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  
+  const prompt = `
+    You are an expert Etsy SEO specialist.
+    The current date is ${currentDate}.
+    
+    Based on the product description: "${productDescription}", suggest exactly 5 seasonal, high-search-volume keywords that are trending right now or will be trending very soon (within the next 1-2 months).
+    
+    Constraints:
+    - Each keyword MUST be exactly 3 words long.
+    - Keywords must be highly relevant to the product AND the season/upcoming holidays.
+    - Keywords must be distinct from each other.
+    
+    Return ONLY a valid JSON array of strings. Example: ["christmas gift idea", "winter wool scarf", "holiday home decor"]
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING }
+        }
+      }
+    });
+
+    const jsonString = response.text;
+    const parsedData = JSON.parse(jsonString);
+
+    if (Array.isArray(parsedData)) {
+      return parsedData.slice(0, 5);
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error("Error generating seasonal keywords:", error);
+    return [];
+  }
+}
